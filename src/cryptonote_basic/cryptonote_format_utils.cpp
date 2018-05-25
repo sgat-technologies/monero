@@ -52,7 +52,7 @@ using namespace epee;
 using namespace crypto;
 
 static const uint64_t valid_decomposed_outputs[] = {
-  (uint64_t)1, (uint64_t)2, (uint64_t)3, (uint64_t)4, (uint64_t)5, (uint64_t)6, (uint64_t)7, (uint64_t)8, (uint64_t)9, // 1 piconero
+  (uint64_t)1, (uint64_t)2, (uint64_t)3, (uint64_t)4, (uint64_t)5, (uint64_t)6, (uint64_t)7, (uint64_t)8, (uint64_t)9,
   (uint64_t)10, (uint64_t)20, (uint64_t)30, (uint64_t)40, (uint64_t)50, (uint64_t)60, (uint64_t)70, (uint64_t)80, (uint64_t)90,
   (uint64_t)100, (uint64_t)200, (uint64_t)300, (uint64_t)400, (uint64_t)500, (uint64_t)600, (uint64_t)700, (uint64_t)800, (uint64_t)900,
   (uint64_t)1000, (uint64_t)2000, (uint64_t)3000, (uint64_t)4000, (uint64_t)5000, (uint64_t)6000, (uint64_t)7000, (uint64_t)8000, (uint64_t)9000,
@@ -708,11 +708,10 @@ namespace cryptonote
   {
     switch (decimal_point)
     {
-      case 12:
-      case 9:
-      case 6:
-      case 3:
-      case 0:
+      case 10:
+      case 7:
+      case 4:
+      case 1:
         default_decimal_point = decimal_point;
         break;
       default:
@@ -731,16 +730,14 @@ namespace cryptonote
       decimal_point = default_decimal_point;
     switch (std::atomic_load(&default_decimal_point))
     {
-      case 12:
-        return "monero";
-      case 9:
-        return "millinero";
-      case 6:
-        return "micronero";
-      case 3:
-        return "nanonero";
-      case 0:
-        return "piconero";
+      case 10:
+        return "sgat";
+      case 7:
+        return "millisgat";
+      case 4:
+        return "microsgat";
+      case 1:
+        return "nanosgat";
       default:
         ASSERT_MES_AND_THROW("Invalid decimal point specification: " << default_decimal_point);
     }
