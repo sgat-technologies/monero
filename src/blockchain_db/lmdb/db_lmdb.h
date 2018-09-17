@@ -166,7 +166,7 @@ struct mdb_txn_safe
 class BlockchainLMDB : public BlockchainDB
 {
 public:
-  BlockchainLMDB(bool batch_transactions=false);
+  BlockchainLMDB(bool batch_transactions=true);
   ~BlockchainLMDB();
 
   virtual void open(const std::string& filename, const int mdb_flags=0);
@@ -180,6 +180,8 @@ public:
   virtual void reset();
 
   virtual std::vector<std::string> get_filenames() const;
+
+  virtual bool remove_data_file(const std::string& folder) const;
 
   virtual std::string get_db_name() const;
 
@@ -197,11 +199,13 @@ public:
 
   virtual cryptonote::blobdata get_block_blob_from_height(const uint64_t& height) const;
 
+  virtual std::vector<uint64_t> get_block_cumulative_rct_outputs(const std::vector<uint64_t> &heights) const;
+
   virtual uint64_t get_block_timestamp(const uint64_t& height) const;
 
   virtual uint64_t get_top_block_timestamp() const;
 
-  virtual size_t get_block_size(const uint64_t& height) const;
+  virtual size_t get_block_weight(const uint64_t& height) const;
 
   virtual difficulty_type get_block_cumulative_difficulty(const uint64_t& height) const;
 
@@ -239,7 +243,6 @@ public:
   virtual uint64_t get_num_outputs(const uint64_t& amount) const;
 
   virtual output_data_t get_output_key(const uint64_t& amount, const uint64_t& index);
-  virtual output_data_t get_output_key(const uint64_t& global_index) const;
   virtual void get_output_key(const uint64_t &amount, const std::vector<uint64_t> &offsets, std::vector<output_data_t> &outputs, bool allow_partial = false);
 
   virtual tx_out_index get_output_tx_and_index_from_global(const uint64_t& index) const;
@@ -270,7 +273,7 @@ public:
   virtual bool for_all_outputs(uint64_t amount, const std::function<bool(uint64_t height)> &f) const;
 
   virtual uint64_t add_block( const block& blk
-                            , const size_t& block_size
+                            , size_t block_weight
                             , const difficulty_type& cumulative_difficulty
                             , const uint64_t& coins_generated
                             , const std::vector<transaction>& txs
@@ -314,9 +317,10 @@ private:
   uint64_t get_estimated_batch_size(uint64_t batch_num_blocks, uint64_t batch_bytes) const;
 
   virtual void add_block( const block& blk
-                , const size_t& block_size
+                , size_t block_weight
                 , const difficulty_type& cumulative_difficulty
                 , const uint64_t& coins_generated
+                , uint64_t num_rct_outs
                 , const crypto::hash& block_hash
                 );
 
@@ -375,6 +379,8 @@ private:
 
   virtual bool is_read_only() const;
 
+  virtual uint64_t get_database_size() const;
+
   // fix up anything that may be wrong due to past bugs
   virtual void fixup();
 
@@ -386,6 +392,9 @@ private:
 
   // migrate from DB version 1 to 2
   void migrate_1_2();
+
+  // migrate from DB version 2 to 3
+  void migrate_2_3();
 
   void cleanup_batch();
 
@@ -440,7 +449,7 @@ private:
 #endif
 #endif
 
-  constexpr static float RESIZE_PERCENT = 0.8f;
+  constexpr static float RESIZE_PERCENT = 0.9f;
 };
 
 }  // namespace cryptonote
